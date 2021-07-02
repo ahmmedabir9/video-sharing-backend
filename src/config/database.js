@@ -1,4 +1,4 @@
 module.exports = {
   database:
-    "mongodb+srv://abirdev:1234567890@devcluster.qbmr2.mongodb.net/video_streaming?retryWrites=true&w=majority",
+    "mongodb+srv://swift:abcd1234@@swifttuts.mdnsk.mongodb.net/vid_stream?retryWrites=true&w=majority",
 };
