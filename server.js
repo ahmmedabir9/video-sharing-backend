@@ -35,11 +35,13 @@ app.use(bodyParser.json());
 
 const authRoute = require("./src/routes/auth.routes");
 const userRoute = require("./src/routes/user.routes");
+const videoRoute = require("./src/routes/video.routes");
 
+app.use("/video", videoRoute);
 app.use("/user", userRoute);
 app.use("/auth", authRoute);
 
-app.post("/file-upload", uploadFile);
+app.post("/upload-file", uploadFile);
 
 app.get("/", (req, res) => {
   res.send("<div><h1>The Server is Running</h1></div>");

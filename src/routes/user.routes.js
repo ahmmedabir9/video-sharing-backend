@@ -11,13 +11,13 @@ const { isUser, isAdmin } = require("../utils/protected");
 
 const router = Router();
 
-//api: url/course/__
+//api: url/user/__
 
 //Subscription
 router.post("/create", isAdmin, createUser);
 router.post("/", getUsers);
 router.get("/:id", getUserDetails);
-router.put("/update/:id", isUser, updateUserDetails);
+router.put("/update/:id", updateUserDetails);
 router.put("/update-status/:id", isAdmin, updateStatus);
 router.post("/delete/:id", isAdmin, deleteUser);
 

@@ -104,7 +104,7 @@ const getUsers = async (req, res) => {
       );
 
     const users = await User.find()
-      .select("name email mobile userType activeStatus photo")
+      .select("name email activeStatus photo")
       .where(
         searchKey
           ? {
@@ -155,7 +155,7 @@ const getUserDetails = async (req, res) => {
 
   try {
     const user = await User.findById(id).select(
-      "name email activeStatus userType mobile photo"
+      "name email activeStatus photo"
     );
     if (!user) {
       return response(res, StatusCodes.NOT_FOUND, false, {}, "No user Found!");
