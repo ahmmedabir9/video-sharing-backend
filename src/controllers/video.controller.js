@@ -1,5 +1,8 @@
 const { StatusCodes } = require("http-status-codes");
 const { Video } = require("../models/Video.model");
+const { VideoComment } = require("../models/VideoComment.model");
+const { VideoLike } = require("../models/VideoLike.model");
+const { VideoShare } = require("../models/VideoShare.model");
 const { response } = require("../utils/response");
 
 //Create a Course
@@ -143,6 +146,260 @@ const getVideoDetails = async (req, res) => {
     );
   }
 };
+
+//Like A Video
+const likeVideo = async (req, res) => {
+  const { user, video } = req.body;
+
+  if (!video || !user) {
+    return response(
+      res,
+      StatusCodes.BAD_REQUEST,
+      false,
+      {},
+      "Please Provide all information"
+    );
+  }
+
+  try {
+    const oldLike = await VideoLike.findOne({ video: video, user: user });
+
+    if (oldLike) {
+      return response(
+        res,
+        StatusCodes.NOT_ACCEPTABLE,
+        false,
+        {},
+        "Already Liked"
+      );
+    }
+
+    const videoLike = await VideoLike.create({
+      video: video,
+      user: user,
+      createdAt: new Date(),
+    });
+
+    if (!videoLike) {
+      return response(
+        res,
+        StatusCodes.BAD_REQUEST,
+        false,
+        {},
+        "Could not create video"
+      );
+    }
+
+    return response(res, StatusCodes.ACCEPTED, true, {}, "Liked");
+  } catch (error) {
+    return response(
+      res,
+      StatusCodes.INTERNAL_SERVER_ERROR,
+      false,
+      {},
+      error.message
+    );
+  }
+};
+
+//Unlike A Video
+const unlikeVideo = async (req, res) => {
+  const { user, video } = req.body;
+
+  if (!video || !user) {
+    return response(
+      res,
+      StatusCodes.BAD_REQUEST,
+      false,
+      {},
+      "Please Provide all information"
+    );
+  }
+
+  try {
+    const oldLike = await VideoLike.findOne({ video: video, user: user });
+
+    if (!oldLike) {
+      return response(res, StatusCodes.NOT_ACCEPTABLE, false, {}, "Not Liked");
+    }
+
+    const videoLike = await VideoLike.findByIdAndDelete(oldLike._id);
+
+    if (!videoLike) {
+      return response(
+        res,
+        StatusCodes.BAD_REQUEST,
+        false,
+        {},
+        "Could not unlike video"
+      );
+    }
+
+    return response(res, StatusCodes.ACCEPTED, true, {}, "Unliked");
+  } catch (error) {
+    return response(
+      res,
+      StatusCodes.INTERNAL_SERVER_ERROR,
+      false,
+      {},
+      error.message
+    );
+  }
+};
+
+//Comment A Video
+const commentOnVideo = async (req, res) => {
+  const { user, video, text } = req.body;
+
+  if (!video || !user || !text) {
+    return response(
+      res,
+      StatusCodes.BAD_REQUEST,
+      false,
+      {},
+      "Please Provide all information"
+    );
+  }
+
+  try {
+    const videoComment = await VideoComment.create({
+      video: video,
+      user: user,
+      text: text,
+      createdAt: new Date(),
+    });
+
+    if (!videoComment) {
+      return response(
+        res,
+        StatusCodes.BAD_REQUEST,
+        false,
+        {},
+        "Could not create video"
+      );
+    }
+
+    return response(
+      res,
+      StatusCodes.ACCEPTED,
+      true,
+      { comment: videoComment },
+      "Liked"
+    );
+  } catch (error) {
+    return response(
+      res,
+      StatusCodes.INTERNAL_SERVER_ERROR,
+      false,
+      {},
+      error.message
+    );
+  }
+};
+
+//Reply Comment
+const replyComment = async (req, res) => {
+  const { user, video, text, parentComment } = req.body;
+
+  if (!video || !user || !text || !parentComment) {
+    return response(
+      res,
+      StatusCodes.BAD_REQUEST,
+      false,
+      {},
+      "Please Provide all information"
+    );
+  }
+
+  try {
+    const commentReply = await VideoComment.create({
+      video: video,
+      user: user,
+      text: text,
+      parentComment: parentComment,
+      isReply: true,
+      createdAt: new Date(),
+    });
+
+    if (!commentReply) {
+      return response(
+        res,
+        StatusCodes.BAD_REQUEST,
+        false,
+        {},
+        "Could not create video"
+      );
+    }
+
+    const videoComment = await VideoComment.findByIdAndUpdate(parentComment, {
+      $push: { replys: commentReply._id },
+      updatedAt: new Date(),
+    });
+
+    return response(
+      res,
+      StatusCodes.ACCEPTED,
+      true,
+      { comment: commentReply },
+      "Liked"
+    );
+  } catch (error) {
+    return response(
+      res,
+      StatusCodes.INTERNAL_SERVER_ERROR,
+      false,
+      {},
+      error.message
+    );
+  }
+};
+
+//Delete Comment
+
+//Share Video
+const shareVideo = async (req, res) => {
+  const { user, video } = req.body;
+
+  if (!video || !user) {
+    return response(
+      res,
+      StatusCodes.BAD_REQUEST,
+      false,
+      {},
+      "Please Provide all information"
+    );
+  }
+
+  try {
+    const videoShare = await VideoShare.create({
+      video: video,
+      user: user,
+      createdAt: new Date(),
+    });
+
+    if (!videoShare) {
+      return response(
+        res,
+        StatusCodes.BAD_REQUEST,
+        false,
+        {},
+        "Could not create video"
+      );
+    }
+
+    return response(res, StatusCodes.ACCEPTED, true, {}, "Shared");
+  } catch (error) {
+    return response(
+      res,
+      StatusCodes.INTERNAL_SERVER_ERROR,
+      false,
+      {},
+      error.message
+    );
+  }
+};
+
+//Get Likes, Comments, Share Counts
 
 //Update Course
 const updateVideo = async (req, res) => {
