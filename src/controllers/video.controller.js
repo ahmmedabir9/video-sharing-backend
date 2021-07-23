@@ -355,6 +355,39 @@ const replyComment = async (req, res) => {
 };
 
 //Delete Comment
+const deleteComment = async (req, res) => {
+  const { id } = req.body;
+
+  try {
+    const videoComment = await VideoComment.findByIdAndDelete(id);
+
+    if (!videoComment) {
+      return response(
+        res,
+        StatusCodes.BAD_REQUEST,
+        false,
+        {},
+        "Could not delete comment"
+      );
+    }
+
+    return response(
+      res,
+      StatusCodes.ACCEPTED,
+      true,
+      { comment: videoComment },
+      "Deleted"
+    );
+  } catch (error) {
+    return response(
+      res,
+      StatusCodes.INTERNAL_SERVER_ERROR,
+      false,
+      {},
+      error.message
+    );
+  }
+};
 
 //Share Video
 const shareVideo = async (req, res) => {
@@ -400,6 +433,61 @@ const shareVideo = async (req, res) => {
 };
 
 //Get Likes, Comments, Share Counts
+const getLikeCommentShareCounts = async () => {
+  const { id } = req.params;
+
+  try {
+    const likes = await VideoLike.countDocuments({ video: id });
+    const comments = await VideoComment.countDocuments({ video: id });
+    const shares = await VideoShare.countDocuments({ video: id });
+
+    if (!likes && !comments && !shares) {
+      return response(res, StatusCodes.NOT_FOUND, false, {}, "No data found");
+    }
+
+    return response(
+      res,
+      StatusCodes.OK,
+      true,
+      { likes: likes, comments: comments, shares: shares },
+      null
+    );
+  } catch (error) {
+    return response(
+      res,
+      StatusCodes.INTERNAL_SERVER_ERROR,
+      false,
+      {},
+      error.message
+    );
+  }
+};
+
+//Get Likes, Comments, Share Counts
+const getComments = async () => {
+  const { id } = req.params;
+
+  try {
+    const comments = await VideoComment.find({
+      video: id,
+      isReply: { $ne: true },
+    }).populate("replys");
+
+    if (!comments) {
+      return response(res, StatusCodes.NOT_FOUND, false, {}, "No data found");
+    }
+
+    return response(res, StatusCodes.OK, true, { comments: comments }, null);
+  } catch (error) {
+    return response(
+      res,
+      StatusCodes.INTERNAL_SERVER_ERROR,
+      false,
+      {},
+      error.message
+    );
+  }
+};
 
 //Update Course
 const updateVideo = async (req, res) => {
@@ -584,4 +672,12 @@ module.exports = {
   updateVideo,
   deleteVideo,
   getVideoByUser,
+  likeVideo,
+  unlikeVideo,
+  commentOnVideo,
+  replyComment,
+  deleteComment,
+  getLikeCommentShareCounts,
+  getComments,
+  shareVideo,
 };
