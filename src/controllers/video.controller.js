@@ -472,6 +472,7 @@ const getComments = async (req, res) => {
       video: id,
       isReply: { $ne: true },
     })
+      .sort({ createdAt: -1 })
       .populate("replys")
       .populate("user");
 
