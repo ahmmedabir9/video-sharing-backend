@@ -129,7 +129,7 @@ const getVideoDetails = async (req, res) => {
   const { slug } = req.params;
 
   try {
-    const video = await Video.findOne({ slug: slug }).populate("course");
+    const video = await Video.findOne({ slug: slug }).populate("user");
 
     if (!video) {
       return response(res, StatusCodes.NOT_FOUND, false, {}, "No video Found!");
