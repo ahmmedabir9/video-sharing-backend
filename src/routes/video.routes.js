@@ -33,7 +33,7 @@ router.post("/comment", commentOnVideo);
 router.post("/reply", replyComment);
 router.post("/delete-comment", deleteComment);
 router.post("/share", shareVideo);
-router.get("/like-comment-share-count", getLikeCommentShareCounts);
-router.get("/get-comments", getComments);
+router.get("/like-comment-share-count/:id", getLikeCommentShareCounts);
+router.get("/get-comments/:id", getComments);
 
 module.exports = router;
