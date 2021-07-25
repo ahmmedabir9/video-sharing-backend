@@ -433,7 +433,7 @@ const shareVideo = async (req, res) => {
 };
 
 //Get Likes, Comments, Share Counts
-const getLikeCommentShareCounts = async () => {
+const getLikeCommentShareCounts = async (req, res) => {
   const { id } = req.params;
 
   try {
@@ -464,14 +464,16 @@ const getLikeCommentShareCounts = async () => {
 };
 
 //Get Likes, Comments, Share Counts
-const getComments = async () => {
+const getComments = async (req, res) => {
   const { id } = req.params;
 
   try {
     const comments = await VideoComment.find({
       video: id,
       isReply: { $ne: true },
-    }).populate("replys");
+    })
+      .populate("replys")
+      .populate("user");
 
     if (!comments) {
       return response(res, StatusCodes.NOT_FOUND, false, {}, "No data found");
