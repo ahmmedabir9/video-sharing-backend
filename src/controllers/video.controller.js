@@ -78,6 +78,9 @@ const getVideos = async (req, res) => {
                 {
                   title: { $regex: searchKey, $options: "i" },
                 },
+                {
+                  description: { $regex: searchKey, $options: "i" },
+                },
               ],
             }
           : null
@@ -91,6 +94,9 @@ const getVideos = async (req, res) => {
               $or: [
                 {
                   title: { $regex: searchKey, $options: "i" },
+                },
+                {
+                  description: { $regex: searchKey, $options: "i" },
                 },
               ],
             }
