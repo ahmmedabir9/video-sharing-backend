@@ -4,6 +4,12 @@ const { VideoComment } = require("../models/VideoComment.model");
 const { VideoLike } = require("../models/VideoLike.model");
 const { VideoShare } = require("../models/VideoShare.model");
 const { response } = require("../utils/response");
+const AWS = require("aws-sdk");
+
+const ID = "AKIAZM7TFLDPQP2CVUF5";
+const SECRET = "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";
+
+const BUCKET_NAME = "vidstream-files";
 
 //Create a Course
 const createVideo = async (req, res) => {
@@ -583,24 +589,31 @@ const deleteVideo = async (req, res) => {
       );
     }
 
-    const updatedCourse = await Course.findByIdAndUpdate(
-      video.course,
-      {
-        $inc: { numberOfVideos: -1, duration: -video.duration },
-        $pullAll: { videos: [video._id] },
-      },
-      { multi: true }
-    );
+    const s3 = new AWS.S3({
+      accessKeyId: ID,
+      secretAccessKey: SECRET,
+    });
 
-    if (!updatedCourse) {
-      return response(
-        res,
-        StatusCodes.BAD_REQUEST,
-        false,
-        {},
-        "Could not delete video"
-      );
-    }
+    const params1 = {
+      Bucket: BUCKET_NAME,
+      Key: video.video,
+    };
+
+    const params2 = {
+      Bucket: BUCKET_NAME,
+      Key: video.thumbnail,
+    };
+
+    await s3.deleteObject(params1, function (err, data) {
+      if (err) console.log(err, err.stack);
+      // error
+      else console.log("deleted"); // deleted
+    });
+    await s3.deleteObject(params2, function (err, data) {
+      if (err) console.log(err, err.stack);
+      // error
+      else console.log("deleted"); // deleted
+    });
 
     return response(res, StatusCodes.ACCEPTED, true, { video: video }, null);
   } catch (error) {
